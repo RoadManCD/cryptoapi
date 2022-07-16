@@ -59,6 +59,7 @@ public class WalletServiceImpl implements WalletService {
         }
 
         userWallet.setAmount(newAmount);
+        userWallet.setLastUpdated(new Date());
         userWalletRepository.save(userWallet);
     }
 
@@ -76,8 +77,8 @@ public class WalletServiceImpl implements WalletService {
         } else {
             BigDecimal newAmount = userWallet.getAmount().add(quantity);
             userWallet.setAmount(newAmount);
+            userWallet.setLastUpdated(new Date());
         }
-
         userWalletRepository.save(userWallet);
     }
 

@@ -16,4 +16,8 @@ public enum CommonAttribute {
     public String getValue() {
         return value;
     }
+
+    public String toString() {
+        return this.value + " " + this.name();
+    }
 }

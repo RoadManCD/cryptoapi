@@ -79,7 +79,7 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
 
         transactionRepository.save(newTransaction);
 
-        return "purchase successful";
+        return "Traded action : " + action + " cryptocurrency " + cryptoCurrency + " at price " + purchasePrice +  "  transaction successful";
 
     }
 
