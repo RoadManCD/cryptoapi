@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class TransferCryptoTransaction {
+public class TransferCryptoRequest {
 
     @NotNull(message = "symbol cannot be empty")
     private String symbol;

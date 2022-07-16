@@ -34,7 +34,6 @@ public class UserWallet {
     @CreationTimestamp
     private Date created;
 
-
     private Date lastUpdated;
 
 

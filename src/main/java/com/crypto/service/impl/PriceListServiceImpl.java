@@ -21,9 +21,7 @@ public class PriceListServiceImpl implements PriceListService {
 
         Optional<PriceList> priceList = priceListRepository.findById(symbol);
 
-        if (!priceList.isPresent()) {
-            throw new NotFoundException("Crypto price list not found : " + symbol);
-        }
+        if (!priceList.isPresent()) throw new NotFoundException("Crypto price list not found : " + symbol);
 
         return priceList.get();
 

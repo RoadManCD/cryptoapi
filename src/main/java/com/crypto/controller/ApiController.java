@@ -1,9 +1,8 @@
 package com.crypto.controller;
 
-import com.crypto.constant.CommonAttribute;
 import com.crypto.error.BadRequestException;
 import com.crypto.error.NotFoundException;
-import com.crypto.model.TransferCryptoTransaction;
+import com.crypto.model.TransferCryptoRequest;
 import com.crypto.response.TransactionResponse;
 import com.crypto.service.PriceListService;
 import com.crypto.service.TransferCryptoTransactionService;
@@ -74,7 +73,17 @@ public class ApiController {
 
 
     @PostMapping("/api/crypto/purchase")
-    public TransactionResponse purchaseCrypto(@Valid @RequestBody TransferCryptoTransaction transaction) throws NotFoundException, BadRequestException {
+    public TransactionResponse purchaseCrypto(@Valid @RequestBody TransferCryptoRequest transaction) throws NotFoundException, BadRequestException {
+
+        checkAttribute(transaction);
+
+        return TransactionResponse.builder()
+                .status(HttpStatus.OK)
+                .data(transferCryptoTransactionService.purchaseCryptoTransaction(transaction))
+                .build();
+    }
+
+    private void checkAttribute(TransferCryptoRequest transaction) throws BadRequestException {
         String symbol = transaction.getSymbol();
         String action = transaction.getAction();
 
@@ -85,11 +94,6 @@ public class ApiController {
         if (!BUYACTION.getValue().equalsIgnoreCase(action) && !SELLACTION.getValue().equalsIgnoreCase(action)) {
             throw new BadRequestException("Invalid Action");
         }
-
-        return TransactionResponse.builder()
-                .status(HttpStatus.OK)
-                .data(transferCryptoTransactionService.purchaseCryptoTransaction(transaction))
-                .build();
     }
 
 }

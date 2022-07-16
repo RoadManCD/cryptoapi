@@ -4,7 +4,7 @@ import com.crypto.entity.PriceList;
 import com.crypto.entity.Transaction;
 import com.crypto.error.BadRequestException;
 import com.crypto.error.NotFoundException;
-import com.crypto.model.TransferCryptoTransaction;
+import com.crypto.model.TransferCryptoRequest;
 import com.crypto.repository.TransactionRepository;
 import com.crypto.service.PriceListService;
 import com.crypto.service.TransferCryptoTransactionService;
@@ -37,8 +37,8 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
     }
 
     //assume BUY action : pay USDT get BTC/ETH , SELL action : pay BTC/ETH get USDT
-    //@Transactional(rollbackOn = Exception.class)
-    public String purchaseCryptoTransaction(final TransferCryptoTransaction transaction) throws NotFoundException, BadRequestException {
+    @Transactional(rollbackOn = Exception.class)
+    public String purchaseCryptoTransaction(final TransferCryptoRequest transaction) throws NotFoundException, BadRequestException {
         String symbol = transaction.getSymbol().toUpperCase();
         PriceList priceList = priceListService.getPriceListBySymbol(symbol);
 

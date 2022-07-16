@@ -14,15 +14,15 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static com.crypto.constant.CommonAttribute.BTCUSDT;
+import static com.crypto.constant.CommonAttribute.ETHUSDT;
+
 
 @Service
 @Transactional
 @Slf4j
 public class TaskScheduleService {
 
-
-    private final static String BTCUSDT = "BTCUSDT";
-    private final static String ETHUSDT = "ETHUSDT";
 
     @Autowired
     private ThirdPartyDataService thirdpartyData;
@@ -43,48 +43,44 @@ public class TaskScheduleService {
         boolean huobiIsUp = false;
         boolean binanceIsUp = false;
 
-
         try {
             if (null != binanceList.get()) {
-                binanceETHUSDT = binanceList.get().get(ETHUSDT);
-                binanceBTCUSDT = binanceList.get().get(BTCUSDT);
+                binanceETHUSDT = binanceList.get().get(ETHUSDT.getValue());
+                binanceBTCUSDT = binanceList.get().get(BTCUSDT.getValue());
                 binanceIsUp = true;
             }
         } catch (Exception ex) {
             log.error("binanceList error : " + ex.getMessage());
-            binanceETHUSDT = null;
-            binanceBTCUSDT = null;
             binanceIsUp = false;
         }
 
         try {
             if (null != huobiList.get()) {
-                huobiETHUSDT = huobiList.get().get(ETHUSDT);
-                huobiBTCUSDT = huobiList.get().get(BTCUSDT);
+                huobiETHUSDT = huobiList.get().get(ETHUSDT.getValue());
+                huobiBTCUSDT = huobiList.get().get(BTCUSDT.getValue());
                 huobiIsUp = true;
             }
         } catch (Exception ex) {
             log.error("huobiList error : " + ex.getMessage());
-            huobiETHUSDT = null;
-            huobiBTCUSDT = null;
             huobiIsUp = false;
         }
 
         if (!binanceIsUp && !huobiIsUp) {
             // not updating price;
         } else {
-
+            //Hints: Ask Price use for BUY order, Bid Price use for SELL order
+            //askprice should be lower for user beneftis, bidprice should be higher for user benefits
             if (binanceIsUp && huobiIsUp) {
-                  ethusdtAskPrice = huobiETHUSDT.getAskPrice().compareTo(binanceETHUSDT.getAskPrice()) > 0 ? huobiETHUSDT.getAskPrice() : binanceETHUSDT.getAskPrice();
-                  btcusdtAskPrice = huobiBTCUSDT.getAskPrice().compareTo(binanceBTCUSDT.getAskPrice()) > 0 ? huobiBTCUSDT.getAskPrice() : binanceBTCUSDT.getAskPrice();
-                  ethusdtBidPrice = huobiETHUSDT.getBidPrice().compareTo(binanceETHUSDT.getBidPrice()) < 0 ? huobiETHUSDT.getBidPrice() : binanceETHUSDT.getBidPrice();
-                  btcusdtBidPrice = huobiBTCUSDT.getBidPrice().compareTo(binanceBTCUSDT.getBidPrice()) < 0 ? huobiBTCUSDT.getBidPrice() : binanceBTCUSDT.getBidPrice();
+                ethusdtAskPrice = huobiETHUSDT.getAskPrice().compareTo(binanceETHUSDT.getAskPrice()) < 0 ? huobiETHUSDT.getAskPrice() : binanceETHUSDT.getAskPrice();
+                btcusdtAskPrice = huobiBTCUSDT.getAskPrice().compareTo(binanceBTCUSDT.getAskPrice()) < 0 ? huobiBTCUSDT.getAskPrice() : binanceBTCUSDT.getAskPrice();
+                ethusdtBidPrice = huobiETHUSDT.getBidPrice().compareTo(binanceETHUSDT.getBidPrice()) > 0 ? huobiETHUSDT.getBidPrice() : binanceETHUSDT.getBidPrice();
+                btcusdtBidPrice = huobiBTCUSDT.getBidPrice().compareTo(binanceBTCUSDT.getBidPrice()) > 0 ? huobiBTCUSDT.getBidPrice() : binanceBTCUSDT.getBidPrice();
 //                ethusdtAskPrice = huobiETHUSDT.getAskPrice().add(binanceETHUSDT.getAskPrice()).divide(BigDecimal.valueOf(2));
 //                btcusdtAskPrice = huobiBTCUSDT.getAskPrice().add(binanceBTCUSDT.getAskPrice()).divide(BigDecimal.valueOf(2));
 //                ethusdtBidPrice = huobiETHUSDT.getBidPrice().add(binanceETHUSDT.getBidPrice()).divide(BigDecimal.valueOf(2));
 //                btcusdtBidPrice = huobiBTCUSDT.getBidPrice().add(binanceBTCUSDT.getBidPrice()).divide(BigDecimal.valueOf(2));
 
-            } else if (!huobiIsUp) {
+            } else if (binanceIsUp) {
                 ethusdtAskPrice = binanceETHUSDT.getAskPrice();
                 btcusdtAskPrice = binanceBTCUSDT.getAskPrice();
                 ethusdtBidPrice = binanceETHUSDT.getBidPrice();
@@ -96,11 +92,9 @@ public class TaskScheduleService {
                 btcusdtBidPrice = huobiBTCUSDT.getBidPrice();
             }
 
-            priceListRepository.save(new PriceList(ETHUSDT, ethusdtBidPrice, ethusdtAskPrice, new Date()));
-            priceListRepository.save(new PriceList(BTCUSDT, btcusdtBidPrice, btcusdtAskPrice, new Date()));
+            priceListRepository.save(new PriceList(ETHUSDT.getValue(), ethusdtAskPrice, ethusdtBidPrice, new Date()));
+            priceListRepository.save(new PriceList(BTCUSDT.getValue(), btcusdtAskPrice, btcusdtBidPrice, new Date()));
         }
 
     }
-
-
 }
