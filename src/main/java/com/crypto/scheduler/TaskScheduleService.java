@@ -23,7 +23,6 @@ import static com.crypto.constant.CommonAttribute.ETHUSDT;
 @Slf4j
 public class TaskScheduleService {
 
-
     @Autowired
     private ThirdPartyDataService thirdpartyData;
 
