@@ -1,0 +1,1 @@
+insert into user_wallet (USERNAME, CURRENCY, AMOUNT, CREATED, LAST_UPDATED) values ( 'tester' , 'USDT' , 50000 , now(), now());
