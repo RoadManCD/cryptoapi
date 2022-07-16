@@ -30,7 +30,7 @@ public class TaskScheduleService {
     @Autowired
     private PriceListRepository priceListRepository;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedDelayString = "${fixed.delay.schedule.time}")
     public void getCryptos() {
 
         CompletableFuture<Map<String, CryptoPriceList>> binanceList = thirdpartyData.getBinanceCrypto();
@@ -46,13 +46,12 @@ public class TaskScheduleService {
 
         try {
             if (null != binanceList.get()) {
-
                 binanceETHUSDT = binanceList.get().get(ETHUSDT);
                 binanceBTCUSDT = binanceList.get().get(BTCUSDT);
                 binanceIsUp = true;
             }
         } catch (Exception ex) {
-            log.info("binanceList error : " + ex.getMessage());
+            log.error("binanceList error : " + ex.getMessage());
             binanceETHUSDT = null;
             binanceBTCUSDT = null;
             binanceIsUp = false;
@@ -65,7 +64,7 @@ public class TaskScheduleService {
                 huobiIsUp = true;
             }
         } catch (Exception ex) {
-            log.info("huobiList error : " + ex.getMessage());
+            log.error("huobiList error : " + ex.getMessage());
             huobiETHUSDT = null;
             huobiBTCUSDT = null;
             huobiIsUp = false;
@@ -76,14 +75,14 @@ public class TaskScheduleService {
         } else {
 
             if (binanceIsUp && huobiIsUp) {
-//                ethusdtAskPrice = huobiETHUSDT.getAskPrice().compareTo(binanceETHUSDT.getAskPrice()) > 0 ? huobiETHUSDT.getAskPrice() : binanceETHUSDT.getAskPrice();
-//                btcusdtAskPrice = huobiBTCUSDT.getAskPrice().compareTo(binanceBTCUSDT.getAskPrice()) > 0 ? huobiBTCUSDT.getAskPrice() : binanceBTCUSDT.getAskPrice();
-//                ethusdtBidPrice = huobiETHUSDT.getBidPrice().compareTo(binanceETHUSDT.getBidPrice()) < 0 ? huobiETHUSDT.getBidPrice() : binanceETHUSDT.getBidPrice();
-//                btcusdtBidPrice = huobiBTCUSDT.getBidPrice().compareTo(binanceBTCUSDT.getBidPrice()) < 0 ? huobiBTCUSDT.getBidPrice() : binanceBTCUSDT.getBidPrice();
-                ethusdtAskPrice = huobiETHUSDT.getAskPrice().add(binanceETHUSDT.getAskPrice()).divide(BigDecimal.valueOf(2));
-                btcusdtAskPrice = huobiBTCUSDT.getAskPrice().add(binanceBTCUSDT.getAskPrice()).divide(BigDecimal.valueOf(2));
-                ethusdtBidPrice = huobiETHUSDT.getBidPrice().add(binanceETHUSDT.getBidPrice()).divide(BigDecimal.valueOf(2));
-                btcusdtBidPrice = huobiBTCUSDT.getBidPrice().add(binanceBTCUSDT.getBidPrice()).divide(BigDecimal.valueOf(2));
+                  ethusdtAskPrice = huobiETHUSDT.getAskPrice().compareTo(binanceETHUSDT.getAskPrice()) > 0 ? huobiETHUSDT.getAskPrice() : binanceETHUSDT.getAskPrice();
+                  btcusdtAskPrice = huobiBTCUSDT.getAskPrice().compareTo(binanceBTCUSDT.getAskPrice()) > 0 ? huobiBTCUSDT.getAskPrice() : binanceBTCUSDT.getAskPrice();
+                  ethusdtBidPrice = huobiETHUSDT.getBidPrice().compareTo(binanceETHUSDT.getBidPrice()) < 0 ? huobiETHUSDT.getBidPrice() : binanceETHUSDT.getBidPrice();
+                  btcusdtBidPrice = huobiBTCUSDT.getBidPrice().compareTo(binanceBTCUSDT.getBidPrice()) < 0 ? huobiBTCUSDT.getBidPrice() : binanceBTCUSDT.getBidPrice();
+//                ethusdtAskPrice = huobiETHUSDT.getAskPrice().add(binanceETHUSDT.getAskPrice()).divide(BigDecimal.valueOf(2));
+//                btcusdtAskPrice = huobiBTCUSDT.getAskPrice().add(binanceBTCUSDT.getAskPrice()).divide(BigDecimal.valueOf(2));
+//                ethusdtBidPrice = huobiETHUSDT.getBidPrice().add(binanceETHUSDT.getBidPrice()).divide(BigDecimal.valueOf(2));
+//                btcusdtBidPrice = huobiBTCUSDT.getBidPrice().add(binanceBTCUSDT.getBidPrice()).divide(BigDecimal.valueOf(2));
 
             } else if (!huobiIsUp) {
                 ethusdtAskPrice = binanceETHUSDT.getAskPrice();

@@ -55,7 +55,7 @@ public class WalletServiceImpl implements WalletService {
         BigDecimal newAmount = userWallet.getAmount().subtract(totalAmount);
 
         if (newAmount.compareTo(BigDecimal.ZERO) == -1) {
-            throw new BadRequestException("insuffient fund");
+            throw new BadRequestException("insuffient fund!  wallet " + currency + " available : " + userWallet.getAmount());
         }
 
         userWallet.setAmount(newAmount);

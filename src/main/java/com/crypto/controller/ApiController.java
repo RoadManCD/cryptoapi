@@ -1,5 +1,6 @@
 package com.crypto.controller;
 
+import com.crypto.constant.CommonAttribute;
 import com.crypto.error.BadRequestException;
 import com.crypto.error.NotFoundException;
 import com.crypto.model.TransferCryptoTransaction;
@@ -19,6 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import static com.crypto.constant.CommonAttribute.BTCUSDT;
+import static com.crypto.constant.CommonAttribute.BUYACTION;
+import static com.crypto.constant.CommonAttribute.ETHUSDT;
+import static com.crypto.constant.CommonAttribute.SELLACTION;
+
 @RestController
 @Validated
 public class ApiController {
@@ -32,10 +38,6 @@ public class ApiController {
     @Autowired
     TransferCryptoTransactionService transferCryptoTransactionService;
 
-    private static final String BTCSYMBOL = "BTCUSDT";
-    private static final String ETHSYMBOL = "ETHUSDT";
-    private static final String BUYACTION = "BUY";
-    private static final String SELLACTION = "SELL";
 
     @GetMapping("/api/wallet/{username}")
     public TransactionResponse getUserWallets(@PathVariable @NotNull final String username) throws NotFoundException {
@@ -76,11 +78,11 @@ public class ApiController {
         String symbol = transaction.getSymbol();
         String action = transaction.getAction();
 
-        if (!BTCSYMBOL.equalsIgnoreCase(symbol) && !ETHSYMBOL.equalsIgnoreCase(symbol)) {
+        if (!BTCUSDT.getValue().equalsIgnoreCase(symbol) && !ETHUSDT.getValue().equalsIgnoreCase(symbol)) {
             throw new BadRequestException("Invalid cryptocurrency");
         }
 
-        if (!BUYACTION.equalsIgnoreCase(action) && !SELLACTION.equalsIgnoreCase(action)) {
+        if (!BUYACTION.getValue().equalsIgnoreCase(action) && !SELLACTION.getValue().equalsIgnoreCase(action)) {
             throw new BadRequestException("Invalid Action");
         }
 

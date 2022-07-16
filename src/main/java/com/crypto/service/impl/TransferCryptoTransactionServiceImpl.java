@@ -16,6 +16,8 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.crypto.constant.CommonAttribute.USDT;
+
 @Service
 @Transactional
 public class TransferCryptoTransactionServiceImpl implements TransferCryptoTransactionService {
@@ -29,13 +31,13 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
     @Autowired
     TransactionRepository transactionRepository;
 
-    private static final String USDT = "USDT";
 
     public List<Transaction> getUserTransactions(final String username) {
         return transactionRepository.findAllByUsername(username);
     }
 
     //assume BUY action : pay USDT get BTC/ETH , SELL action : pay BTC/ETH get USDT
+    //@Transactional(rollbackOn = Exception.class)
     public String purchaseCryptoTransaction(final TransferCryptoTransaction transaction) throws NotFoundException, BadRequestException {
         String symbol = transaction.getSymbol().toUpperCase();
         PriceList priceList = priceListService.getPriceListBySymbol(symbol);
@@ -44,36 +46,28 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
         String username = transaction.getUsername();
         BigDecimal purchasePrice = transaction.getPurchasePrice();
         BigDecimal quantity = transaction.getQuantity();
-        String cryptoCurrency = symbol.replace(USDT, "");
+        String cryptoCurrency = symbol.replace(USDT.getValue(), "");
 
         String payCurrency, getCurrency;
         BigDecimal earnAmount, deductAmount;
 
         if (action.equalsIgnoreCase("buy")) {
-            payCurrency = USDT;
+            payCurrency = USDT.getValue();
             getCurrency = cryptoCurrency;
             deductAmount = purchasePrice.multiply(quantity);
             earnAmount = quantity;
-
-            if (purchasePrice.compareTo(priceList.getBuyPrice()) < 0) {
-                throw new BadRequestException(cryptoCurrency + " purchase price " + purchasePrice + " is lower than current best price "
-                        + priceList.getBuyPrice() + ", unable to buy");
-            }
+            checkPrice(purchasePrice, priceList.getBuyPrice(), 0, cryptoCurrency);
 
         } else {
             payCurrency = cryptoCurrency;
-            getCurrency = USDT;
+            getCurrency = USDT.getValue();
             deductAmount = quantity;
             earnAmount = purchasePrice.multiply(quantity);
-
-            if (priceList.getSellPrice().compareTo(purchasePrice) < 0) {
-                throw new BadRequestException(cryptoCurrency + " purchase price " + purchasePrice + " is higher than  current best price "
-                        + priceList.getSellPrice() + ", unable to sell");
-            }
+            checkPrice(purchasePrice, priceList.getSellPrice(), -1, cryptoCurrency);
         }
 
-        walletService.saveByDeductAmount(username, payCurrency, deductAmount);
         walletService.saveByAddAmount(username, getCurrency, earnAmount);
+        walletService.saveByDeductAmount(username, payCurrency, deductAmount);
         Transaction newTransaction = Transaction.builder().username(username)
                 .payWallet(payCurrency)
                 .symbol(symbol)
@@ -87,5 +81,13 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
 
         return "purchase successful";
 
+    }
+
+    private void checkPrice(BigDecimal purchasePrice, BigDecimal currentPrice, int result, String currency) throws BadRequestException {
+        String valueString = result > 0 ? "higher" : "lower";
+        if (purchasePrice.compareTo(currentPrice) < result) {
+            throw new BadRequestException(currency + " purchase price " + purchasePrice + " is " + valueString + " than current best price "
+                    + currentPrice + ", unable to trade");
+        }
     }
 }

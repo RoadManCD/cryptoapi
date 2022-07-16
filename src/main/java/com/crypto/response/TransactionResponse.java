@@ -13,6 +13,4 @@ import org.springframework.http.HttpStatus;
 public class TransactionResponse<T> {
     private HttpStatus status;
     private T data;
-
-
 }

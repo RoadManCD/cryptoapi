@@ -40,6 +40,6 @@ public class Transaction {
     private BigDecimal totalAmount;
 
     @CreationTimestamp
-    private Date created;
+    private Date transactionDateTime;
 
 }
