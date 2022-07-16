@@ -1,0 +1,125 @@
+{
+	"info": {
+		"_postman_id": "670ee79f-55d6-44e5-9d1b-617fba78bb50",
+		"name": "CrytoRequest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "getAllCryptoPriceList",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/crypto/prices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"crypto",
+						"prices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getCryptoPriceListBySymbol",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/crypto/price/BTCUSDT",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"crypto",
+						"price",
+						"BTCUSDT"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserWalletTransactions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/wallet/{{username}}/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"wallet",
+						"{{username}}",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserWallets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/wallet/{{username}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"wallet",
+						"{{username}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "postTradeCrypto",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"symbol\" : \"BTCUSDT\",\r\n    \"username\" : \"tester\",\r\n    \"action\" : \"buy\", \r\n    \"purchasePrice\" :  30000.00000000,\r\n    \"quantity\" : 0.1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/crypto/purchase",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"crypto",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
