@@ -65,7 +65,7 @@ public class TaskScheduleService {
         }
 
         if (!binanceIsUp && !huobiIsUp) {
-            // not updating price;
+            // no updating price;
         } else {
             //Hints: Ask Price use for BUY order, Bid Price use for SELL order
             //askprice should be lower for user beneftis, bidprice should be higher for user benefits

@@ -8,6 +8,7 @@ import com.crypto.service.PriceListService;
 import com.crypto.service.TransferCryptoTransactionService;
 import com.crypto.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
-import static com.crypto.constant.CommonAttribute.BTCUSDT;
 import static com.crypto.constant.CommonAttribute.BUYACTION;
-import static com.crypto.constant.CommonAttribute.ETHUSDT;
 import static com.crypto.constant.CommonAttribute.SELLACTION;
 
 @RestController
@@ -37,6 +37,8 @@ public class ApiController {
     @Autowired
     TransferCryptoTransactionService transferCryptoTransactionService;
 
+    @Value("#{${supported.crypto.symbol}}")
+    private List<String> supportedSymbols;
 
     @GetMapping("/api/wallet/{username}")
     public TransactionResponse getUserWallets(@PathVariable @NotNull final String username) throws NotFoundException {
@@ -47,7 +49,10 @@ public class ApiController {
     }
 
     @GetMapping("/api/crypto/price/{symbol}")
-    public TransactionResponse getPriceListBySymbol(@PathVariable @NotNull final String symbol) throws NotFoundException {
+    public TransactionResponse getPriceListBySymbol(@PathVariable @NotNull final String symbol) throws NotFoundException, BadRequestException {
+
+        checkSymbol(symbol);
+
         return TransactionResponse.builder()
                 .status(HttpStatus.OK)
                 .data(priceListService.getPriceListBySymbol(symbol))
@@ -87,12 +92,16 @@ public class ApiController {
         String symbol = transaction.getSymbol();
         String action = transaction.getAction();
 
-        if (!BTCUSDT.getValue().equalsIgnoreCase(symbol) && !ETHUSDT.getValue().equalsIgnoreCase(symbol)) {
-            throw new BadRequestException("Invalid cryptocurrency");
-        }
+        checkSymbol(symbol);
 
         if (!BUYACTION.getValue().equalsIgnoreCase(action) && !SELLACTION.getValue().equalsIgnoreCase(action)) {
             throw new BadRequestException("Invalid Action");
+        }
+    }
+
+    private void checkSymbol(String symbol) throws BadRequestException {
+        if (!supportedSymbols.contains(symbol)) {
+            throw new BadRequestException("Invalid cryptocurrency symbol " + symbol + " is not supported.");
         }
     }
 

@@ -56,14 +56,14 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
             getCurrency = cryptoCurrency;
             deductAmount = purchasePrice.multiply(quantity);
             earnAmount = quantity;
-            checkPrice(purchasePrice, priceList.getBuyPrice(), 0, cryptoCurrency);
+            checkPrice(purchasePrice, priceList.getBuyPrice(), -1, cryptoCurrency);
 
         } else {
             payCurrency = cryptoCurrency;
             getCurrency = USDT.getValue();
             deductAmount = quantity;
             earnAmount = purchasePrice.multiply(quantity);
-            checkPrice(purchasePrice, priceList.getSellPrice(), -1, cryptoCurrency);
+            checkPrice(purchasePrice, priceList.getSellPrice(), 1, cryptoCurrency);
         }
 
         walletService.saveByAddAmount(username, getCurrency, earnAmount);
@@ -85,7 +85,7 @@ public class TransferCryptoTransactionServiceImpl implements TransferCryptoTrans
 
     private void checkPrice(BigDecimal purchasePrice, BigDecimal currentPrice, int result, String currency) throws BadRequestException {
         String valueString = result > 0 ? "higher" : "lower";
-        if (purchasePrice.compareTo(currentPrice) < result) {
+        if (purchasePrice.compareTo(currentPrice) == result) {
             throw new BadRequestException(currency + " purchase price " + purchasePrice + " is " + valueString + " than current best price "
                     + currentPrice + ", unable to trade");
         }

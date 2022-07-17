@@ -1,6 +1,5 @@
 package com.crypto.scheduler;
 
-import com.crypto.constant.CommonAttribute;
 import com.crypto.model.Binance;
 import com.crypto.model.CryptoPriceList;
 import com.crypto.model.Huobi;
@@ -14,31 +13,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static com.crypto.constant.CommonAttribute.BTCUSDT;
-import static com.crypto.constant.CommonAttribute.ETHUSDT;
 
 @Service
 @Slf4j
 public class ThirdPartyDataService {
 
-    @Value("${resttemplate.request.timeout}")
-    private int TIMEOUT ;
-
-    @Value("${binance.url}")
-    private String binanceUrl ;
-
-    @Value("${houbi.url}")
-    private String houbiUrl ;
-
     private final static ObjectMapper mapper = new ObjectMapper();
 
-    private final RestTemplate restTemplate = new RestTemplateBuilder().setConnectTimeout(Duration.ofMillis(TIMEOUT)).setReadTimeout(Duration.ofMillis(TIMEOUT)).build();
+    private final int TIMEOUT ;
+    private final String binanceUrl;
+    private final String houbiUrl;
+    private final List<String> supportedSymbols;
+    private final RestTemplate restTemplate;
+
+
+    public ThirdPartyDataService(@Value("${resttemplate.request.timeout}") int timeout,
+                                 @Value("${binance.url}") String binanceUrl,
+                                 @Value("${houbi.url}") String houbiUrl,
+                                 @Value("#{${supported.crypto.symbol}}") List<String> supportedSymbols) {
+        this.TIMEOUT = timeout;
+        this.binanceUrl = binanceUrl;
+        this.houbiUrl = houbiUrl;
+        this.supportedSymbols = Collections.unmodifiableList(supportedSymbols);
+        this.restTemplate = new RestTemplateBuilder().setConnectTimeout(Duration.ofMillis(TIMEOUT)).setReadTimeout(Duration.ofMillis(TIMEOUT)).build();
+
+    }
 
 
     @Async("asyncExecutor")
@@ -51,7 +57,7 @@ public class ThirdPartyDataService {
         Map<String, CryptoPriceList> cryptoPriceList = new HashMap<>();
 
         listOfSymbol.stream()
-                .filter(c -> c.getSymbol().equalsIgnoreCase( ETHUSDT.getValue()) || c.getSymbol().equalsIgnoreCase( BTCUSDT.getValue()) )
+                .filter(c -> supportedSymbols.contains(c.getSymbol().toUpperCase()))
                 .forEach(c -> cryptoPriceList.put(c.getSymbol().toUpperCase(),
                         new CryptoPriceList(c.getSymbol().toUpperCase(), c.getBidPrice(), c.getAskPrice())));
         log.info("end getBinanceCrypto " + cryptoPriceList.toString() + " | timenow : " + new Date());
@@ -69,7 +75,7 @@ public class ThirdPartyDataService {
         Map<String, CryptoPriceList> cryptoPriceList = new HashMap<>();
 
         listOfSymbol.stream()
-                .filter(c -> c.getSymbol().equalsIgnoreCase( ETHUSDT.getValue()) || c.getSymbol().equalsIgnoreCase( BTCUSDT.getValue() ))
+                .filter(c -> supportedSymbols.contains(c.getSymbol().toUpperCase()))
                 .forEach(c -> cryptoPriceList.put(c.getSymbol().toUpperCase(),
                         new CryptoPriceList(c.getSymbol().toUpperCase(), c.getBid(), c.getAsk())));
 
